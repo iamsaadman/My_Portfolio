@@ -7,6 +7,7 @@ import { gmailComposeUrl, profile } from "@/data/site";
 import { useEffect, useRef, useState } from "react";
 
 const nameLines = ["MUHAMMAD", "SAADMAN", "SAKIB HOSSAIN"];
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const heroSlogans = [
   "Building useful ideas into thoughtful digital experiences.",
@@ -97,7 +98,7 @@ export function Hero() {
               Explore work <ArrowRight size={14} aria-hidden="true" />
             </a>
             <a
-              href="/resume.pdf"
+              href={`${basePath}/resume.pdf`}
               download="Muhammad_Saadman_Sakib_Hossain_Resume.pdf"
               className="button-secondary"
             >
@@ -120,7 +121,7 @@ export function Hero() {
           className="hero-portrait-wrap"
         >
           <Image
-            src="/saadman-portrait.png"
+            src={`${basePath}/saadman-portrait.png`}
             alt={`Portrait of ${profile.name}`}
             width={900}
             height={1140}

@@ -18,56 +18,35 @@ const defaultValues: ContactFormValues = {
 };
 
 export function Contact() {
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues,
   });
 
-  const onSubmit = async (values: ContactFormValues) => {
+  const onSubmit = (values: ContactFormValues) => {
     if (values.company) {
       setStatus("error");
       setMessage("Spam protection triggered.");
       return;
     }
 
-    setIsSubmitting(true);
     setStatus("idle");
     setMessage("");
-
-    try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "Something went wrong while sending the message.");
-      }
-
-      setStatus("success");
-      setMessage("Message sent successfully. Thank you for reaching out.");
-      reset();
-    } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Your message could not be sent right now.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    const composeUrl = new URL(gmailComposeUrl);
+    composeUrl.searchParams.set("su", `Portfolio enquiry: ${values.subject}`);
+    composeUrl.searchParams.set(
+      "body",
+      `Name: ${values.name}\nEmail: ${values.email}\n\n${values.message}`,
+    );
+    window.location.assign(composeUrl.toString());
   };
 
   const copyEmail = async () => {
@@ -124,7 +103,7 @@ export function Contact() {
 
           <Reveal delay={0.08}>
             <form onSubmit={handleSubmit(onSubmit)} className="border border-white/10 bg-[#111] p-6 sm:p-8">
-              <p className="mb-6 text-sm leading-6 text-zinc-400">Or send me a message using the form below.</p>
+              <p className="mb-6 text-sm leading-6 text-zinc-400">The form opens a prefilled Gmail draft. Review and send your message there.</p>
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="mb-2 block text-sm font-medium text-zinc-200">Full Name</label>
@@ -159,10 +138,9 @@ export function Contact() {
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="inline-flex items-center justify-center gap-2 border border-white bg-[#f5f5f5] px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#050505] transition-colors hover:bg-transparent hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex items-center justify-center gap-2 border border-white bg-[#f5f5f5] px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#050505] transition-colors hover:bg-transparent hover:text-white"
                 >
-                  <Send size={15} /> {isSubmitting ? "Sending..." : "Send Message"}
+                  <Send size={15} /> Open Gmail Draft
                 </button>
 
                 {status !== "idle" ? (

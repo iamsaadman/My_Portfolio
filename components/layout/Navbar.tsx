@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 const primaryNavigation = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
@@ -86,7 +88,7 @@ export function Navbar() {
           aria-label={`${profile.name} — home`}
           className="brand-link inline-flex shrink-0 items-center gap-2.5"
         >
-          <Image src="/icon.svg" alt="" width={32} height={32} className="brand-icon" />
+          <Image src={`${basePath}/icon.svg`} alt="" width={32} height={32} className="brand-icon" />
           <span className="brand-name">Saadman Sakib</span>
         </Link>
 
